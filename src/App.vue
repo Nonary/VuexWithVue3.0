@@ -1,10 +1,12 @@
 <template>
   <div id="app">
+    <h1>Compositional Counter</h1>
     <counter></counter>
-    <vuex-counter></vuex-counter>
-
     <h1>Total clicks is {{ clicks }}</h1>
     <button @click="resetClicks">Reset clicks</button>
+
+    <h1>Counter via Vuex and Composition API</h1>
+    <vuex-counter></vuex-counter>
   </div>
 </template>
 
@@ -12,7 +14,6 @@
 import Counter from "@/components/Counter.vue";
 import VuexCounter from "@/components/VuexCounter.vue";
 import { clicks, resetClicks } from "@/composition/counter";
-import store from "@/store/index";
 
 export default {
   setup() {

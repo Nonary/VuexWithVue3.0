@@ -1,23 +1,18 @@
 import { createStore, useStore, Store } from "vuex";
 import { ref, reactive, computed } from "vue";
 
-const typedState = {
-  count: 0,
-  clicks: 0
-};
-
-const mutations = {
-  increment(state: typeof typedState) {
-    state.count++;
-  },
-  decrement(state: typeof typedState) {
-    state.count--;
-  }
-};
-
 const store = createStore({
-  state: typedState,
-  mutations
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
+    },
+    decrement(state) {
+      state.count--;
+    }
+  }
 });
 
 export default store;
@@ -26,7 +21,6 @@ export function compositeStore() {
   const _store: typeof store = useStore();
 
   const count = computed(() => _store.state.count);
-  const clicks = computed(() => _store.state.clicks);
 
   function increase() {
     _store.commit("increment");
@@ -38,7 +32,6 @@ export function compositeStore() {
 
   return {
     count,
-    clicks,
     increase,
     decrease
   };
