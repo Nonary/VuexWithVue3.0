@@ -1,20 +1,31 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+    <counter></counter>
+    <vuex-counter></vuex-counter>
+
+    <h1>Total clicks is {{ clicks }}</h1>
+    <button @click="resetClicks">Reset clicks</button>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+<script>
+import Counter from "@/components/Counter.vue";
+import VuexCounter from "@/components/VuexCounter.vue";
+import { clicks, resetClicks } from "@/composition/counter";
+import store from "@/store/index";
 
-export default defineComponent({
-  name: "App",
+export default {
+  setup() {
+    return {
+      clicks,
+      resetClicks
+    };
+  },
   components: {
-    HelloWorld
+    Counter,
+    VuexCounter
   }
-});
+};
 </script>
 
 <style>
