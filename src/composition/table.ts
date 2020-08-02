@@ -11,6 +11,7 @@ export default function tableComponent(
   const currentPage = ref(1);
   const clonedItems = ref(items.slice(0));
   const filteredItems = computed(() => {
+    console.log("Filter function invoked");
     if (search?.value == undefined) {
       return clonedItems.value;
     }
@@ -25,12 +26,11 @@ export default function tableComponent(
             .includes((search.value as string).toLowerCase());
         }
         if (typeof value == "number") {
-          return value == item[key];
+          return item[key] == parseInt(search.value as string, 10);
         }
 
         return false;
       });
-
       return found.includes(true);
     });
   });
@@ -43,6 +43,14 @@ export default function tableComponent(
     )
   );
 
+  function _resetSortingForOtherKeys(key: string) {
+    Array.from(sortedKeys.value.keys()).forEach(sortKey => {
+      if (sortKey != key) {
+        sortedKeys.value.set(sortKey, 0);
+      }
+    });
+  }
+
   function sortTableByKey(key: string) {
     let currentOrder = sortedKeys.value.get(key) ?? 1;
     if (currentOrder == 0) {
@@ -50,11 +58,8 @@ export default function tableComponent(
     }
     sortedKeys.value.set(key, currentOrder * -1);
 
-    Array.from(sortedKeys.value.keys()).forEach(e => {
-      if (e != key) {
-        sortedKeys.value.set(e, 0);
-      }
-    });
+    _resetSortingForOtherKeys(key);
+
     clonedItems.value = clonedItems.value.slice(0).sort((a, b) => {
       const aValue = a[key];
       const bValue = b[key];

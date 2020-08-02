@@ -2,21 +2,40 @@ import tableFunction from "@/composition/table";
 import { ref, Ref } from "vue";
 
 describe("Table tests", () => {
-  it("On sorting by key, should default to descending first", () => {
+  it("On sorting by key, should default to ascending first", () => {
     const table = tableFunction([{ name: "A" }, { name: "B" }], 2);
 
+    table.sortTableByKey("name");
+
+    expect(table.paginatedItems.value).toEqual([{ name: "A" }, { name: "B" }]);
+  });
+
+  it("On sorting by key, if key is sorted twice should be descending order", () => {
+    const table = tableFunction([{ name: "A" }, { name: "B" }], 2);
+
+    table.sortTableByKey("name");
     table.sortTableByKey("name");
 
     expect(table.paginatedItems.value).toEqual([{ name: "B" }, { name: "A" }]);
   });
 
-  it("On sorting by key, if key is sorted twice should return to ascending order", () => {
-    const table = tableFunction([{ name: "A" }, { name: "B" }], 2);
+  it("On sorting by key, all other keys should be reset", () => {
+    const table = tableFunction(
+      [
+        { name: "A", duration: 0 },
+        { name: "B", duration: 1 }
+      ],
+      2
+    );
 
     table.sortTableByKey("name");
+    table.sortTableByKey("duration");
     table.sortTableByKey("name");
 
-    expect(table.paginatedItems.value).toEqual([{ name: "A" }, { name: "B" }]);
+    expect(table.paginatedItems.value).toEqual([
+      { name: "A", duration: 0 },
+      { name: "B", duration: 1 }
+    ]);
   });
 
   it("On searching, items should filter out based off all keys", () => {
@@ -75,5 +94,24 @@ describe("Table tests", () => {
     table.nextPage();
 
     expect(table.currentPage.value).toEqual(1);
+  });
+
+  it("On filtering, if value is string, should not be case sensitive", () => {
+    const table = tableFunction([{ name: "A" }, { name: "B" }], 1, ref("a"));
+
+    expect(table.paginatedItems.value.length).toEqual(1);
+  });
+
+  it("On filtering, if value is number, should filter based off equality after parsing", () => {
+    const table = tableFunction(
+      [
+        { name: "A", duration: 2 },
+        { name: "B", duration: 1 }
+      ],
+      1,
+      ref("1")
+    );
+
+    expect(table.paginatedItems.value.length).toEqual(1);
   });
 });

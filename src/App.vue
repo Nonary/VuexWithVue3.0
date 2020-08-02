@@ -15,6 +15,7 @@
       :search="search"
       :currentPage="currentPage"
     >
+      <template #sorter="direction">{{ formatDirection(direction) }}</template>
       <template #duration_cell="{item}">
         <h1>{{ item.duration }}</h1>
       </template>
@@ -26,7 +27,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Counter from "@/components/Counter.vue";
 import VuexCounter from "@/components/VuexCounter.vue";
 import CompTable from "@/components/CompTable.vue";
@@ -57,6 +58,20 @@ export default {
       }
     ];
 
+    function formatDirection(index: number) {
+      if (index == 0) {
+        return "=";
+      }
+      if (index == -1) {
+        return "-";
+      }
+      if (index == 1) {
+        return "+";
+      }
+
+      return "=";
+    }
+
     const search = ref("");
     const currentPage = ref(0);
 
@@ -64,6 +79,7 @@ export default {
       clicks,
       search,
       resetClicks,
+      formatDirection,
       currentPage,
       sampleItems,
       headers

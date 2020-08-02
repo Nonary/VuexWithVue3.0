@@ -7,16 +7,22 @@
           :key="header.name"
           @click="sortTableByKey(header.value)"
         >
-          {{ header.name }}
-          <span>{{ headerKey(header.value) }}</span>
+          <slot :name="`${header.value}_header`" v-bind="{ header }">
+            {{ header.name }}
+          </slot>
+          <span>
+            <slot name="sorter" v-bind="sortedKeys.get(header.value)">{{
+              headerKey(header.value)
+            }}</slot>
+          </span>
         </th>
       </tr>
       <tr v-for="item in paginatedItems" :key="item">
-        <slot :name="`${item.value}_cell`" v-bind="item">
-          <td v-for="header in headers" :key="header.name">
+        <td v-for="header in headers" :key="header.name">
+          <slot :name="`${header.value}_cell`" v-bind="{ item }">
             {{ item[header.value] }}
-          </td>
-        </slot>
+          </slot>
+        </td>
       </tr>
     </table>
 
