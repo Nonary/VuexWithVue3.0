@@ -16,14 +16,26 @@
             }}</slot>
           </span>
         </th>
+        <th></th>
       </tr>
-      <tr v-for="item in paginatedItems" :key="item">
-        <td v-for="header in headers" :key="header.name">
-          <slot :name="`${header.value}_cell`" v-bind="{ item }">
-            {{ item[header.value] }}
-          </slot>
-        </td>
-      </tr>
+      <template v-for="item in paginatedItems">
+        <tr :key="item">
+          <td v-for="header in headers" :key="header.name">
+            <slot :name="`${header.value}_cell`" v-bind="{ item }">
+              {{ item[header.value] }}
+            </slot>
+          </td>
+          <td @click="toggleExpand(item)">Expand</td>
+        </tr>
+        <!-- eslint-disable-next-line vue/require-v-for-key -->
+        <tr v-if="expanded.includes(item)">
+          <td :colspan="headers.length">
+            <slot name="expanded" v-bind="{ item }">
+              Slot Me here!
+            </slot>
+          </td>
+        </tr>
+      </template>
     </table>
 
     <button @click="nextPage">Next Page</button>
@@ -67,6 +79,8 @@ export default defineComponent({
       toRef(props, "search") as Ref<string>
     );
 
+    const expanded = ref([] as any[]);
+
     function headerKey(key: string) {
       const order = table.sortedKeys.value.get(key);
       if (order == undefined || order == 0) {
@@ -77,8 +91,18 @@ export default defineComponent({
       }
       return "^";
     }
+
+    function toggleExpand(item: any) {
+      if (expanded.value.includes(item)) {
+        expanded.value = expanded.value.filter(x => x != item);
+      } else {
+        expanded.value.push(item);
+      }
+    }
     return {
       headerKey,
+      expanded,
+      toggleExpand,
       ...table
     };
   }
