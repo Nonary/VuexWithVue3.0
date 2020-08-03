@@ -1,7 +1,8 @@
 <template>
   <div>
-    <table>
+    <table class="table table-sm">
       <tr>
+        <th v-if="selectable"></th>
         <th
           v-for="header in headers"
           :key="header.name"
@@ -16,22 +17,29 @@
             }}</slot>
           </span>
         </th>
-        <th></th>
+        <th v-if="expandable"></th>
       </tr>
       <template v-for="item in paginatedItems">
         <tr :key="item">
+          <td v-if="selectable">
+            <input
+              type="checkbox"
+              @click="toggleCheck(item)"
+              :value="selected.includes(item)"
+            />
+          </td>
           <td v-for="header in headers" :key="header.name">
             <slot :name="`${header.value}_cell`" v-bind="{ item }">
               {{ item[header.value] }}
             </slot>
           </td>
-          <td @click="toggleExpand(item)">Expand</td>
+          <td v-if="expandable" @click="toggleExpand(item)">Expand</td>
         </tr>
         <!-- eslint-disable-next-line vue/require-v-for-key -->
-        <tr v-if="expanded.includes(item)">
-          <td :colspan="headers.length">
+        <tr v-if="expandable && expanded.value.includes(item)">
+          <td :colspan="headers.length + 1">
             <slot name="expanded" v-bind="{ item }">
-              Slot Me here!
+              Replace me with a slot named expanded!
             </slot>
           </td>
         </tr>
@@ -70,7 +78,13 @@ export default defineComponent({
       type: Array
     },
     perPage: Number,
-    search: String
+    search: String,
+    expandable: Boolean,
+    selectable: Boolean,
+    expanded: {
+      type: Array,
+      default: () => ref(["Default"])
+    }
   },
   setup(props) {
     const table = createTable(
@@ -79,7 +93,7 @@ export default defineComponent({
       toRef(props, "search") as Ref<string>
     );
 
-    const expanded = ref([] as any[]);
+    const selected = ref([]);
 
     function headerKey(key: string) {
       const order = table.sortedKeys.value.get(key);
@@ -93,16 +107,27 @@ export default defineComponent({
     }
 
     function toggleExpand(item: any) {
-      if (expanded.value.includes(item)) {
-        expanded.value = expanded.value.filter(x => x != item);
+      if (props.expanded.value.includes(item)) {
+        // eslint-disable-next-line vue/no-mutating-props
+        props.expanded.value = props.expanded.value.filter(x => x != item);
       } else {
-        expanded.value.push(item);
+        // eslint-disable-next-line vue/no-mutating-props
+        props.expanded.value.push(item);
+      }
+    }
+
+    function toggleCheck(item: any) {
+      if (selected.value.includes(item)) {
+        selected.value = selected.value.filter(x => x != item);
+      } else {
+        selected.value.push(item);
       }
     }
     return {
       headerKey,
-      expanded,
+      selected,
       toggleExpand,
+      toggleCheck,
       ...table
     };
   }
